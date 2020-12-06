@@ -36,7 +36,6 @@ INNER_CMD inners[] = {
 void handler(int sig){
     printf("\n%s $ ", cwd);
     fflush(stdout);
-    return;
 }
 
 void init(void){
@@ -63,7 +62,7 @@ void init(void){
 
 void shell(void){
     //int status = 1;
-    while(1){
+    loop: while(1){
         init();
         
         printf("Reading cmd\n");
@@ -309,6 +308,7 @@ int is_inner(void){
             inner_id = idx;
             break;
         }
+        idx++;
     }
 
     return inner_id;
