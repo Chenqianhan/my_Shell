@@ -1,13 +1,7 @@
 #include "inner.h"
 #include "cshell.h"
 #include "extern.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <signal.h>
+
 
 INNER_CMD inners[] = {
     {"exit", EXIT},
@@ -19,17 +13,23 @@ INNER_CMD inners[] = {
     {NULL, NULL}
 };
 
+//-1 means no inner func
 int is_inner(void){
-    int idx = 0, isFound = 0;
+    int idx = 0, inner_id = -1;
     while(inners[idx].name != NULL){
         if(check(inners[idx].name)){
-            inners[idx].inner_func();
-            isFound = 1;
+            inner_id = idx;
             break;
         }
     }
 
-    return isFound;
+    return inner_id;
+}
+
+void run_inner(int idx){
+    inners[idx].inner_func();
+    
+    return;
 }
 
 
