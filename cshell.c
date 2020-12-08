@@ -30,12 +30,15 @@ int has_next;
 INNER_CMD inners[] = {
     {"exit", EXIT},
     {"cd", CD},
+    {"pwd", PWD},
     {NULL, NULL}
 };
 
 void handler(int sig){
-    printf("\n%s $ ", cwd);
+    //printf("\n%s $ ", cwd);
     fflush(stdout);
+    //fflush(stdin);
+    return;
 }
 
 void init(void){
@@ -58,23 +61,24 @@ void init(void){
 
     printf("\n%s $ ", cwd);
     fflush(stdout);
+    //fflush(stdin);
 }
 
 void shell(void){
     //int status = 1;
-    loop: while(1){
+    while(1){
         init();
         
-        printf("Reading cmd\n");
+        //printf("Reading cmd\n");
         if(read_cmd() == -1){
             break;
         }
 
-        printf("Parsing cmd\n");
+        //printf("Parsing cmd\n");
         int cmd_cnt = parse_cmd();
-        printf("Execute_cmd\n");
+        //printf("Execute_cmd\n");
         execute_cmd(cmd_cnt);
-        /*
+        
         while(has_next){
             //memset(cmd, 0, sizeof(cmd));
             memset(output_file, 0, sizeof(output_file));
@@ -83,7 +87,7 @@ void shell(void){
             cmd_cnt = parse_cmd();
             execute_cmd(cmd_cnt);
         }
-        */
+        
     }
 }
 
@@ -136,12 +140,33 @@ void get_cmd(int i){
                 *arg_ptr++ = *cmd_ptr++;
                 isWord++;
             }
-
+        *arg_ptr++ = '\0';
+        cmd[i].args[arg_idx + 1] = NULL;
+        /*
         if(*cmd_ptr == '\n'){
             if(isWord == 0){
                 cmd[i].args[arg_idx] = NULL;
             }
             return;
+        }
+        */
+       switch(*cmd_ptr){
+            case ' ':
+                    isWord = 0;
+                    arg_idx++;                        
+                    break;
+            case '\t':
+                    isWord = 0;
+                    arg_idx++;                        
+                    break;
+            case '>':
+            case '|':
+            case ';':
+            case '\n':
+                    if(isWord == 0) cmd[i].args[arg_idx] = NULL;
+                    return;
+            default:
+                    return;
         }
     }
 
@@ -167,7 +192,7 @@ void get_string(char *name){
 }
 
 int read_cmd(void){
-    if(fgets(commands, LINE_SIZE, stdin) == NULL){
+    if(fgets(commands, LINE_SIZE-1, stdin) == NULL){
         return -1;
     }
 
@@ -200,18 +225,17 @@ int parse_cmd(void){
     }
     
     if(check("\n")){
-        //has_next = 0;
+        has_next = 0;
         return cmd_num;
     }
     //ls; ls
     if(check(";")){
         has_next = 1;
+        return cmd_num;
     }else{
         printf("Command error");
         return -1;
     }
-
-    return cmd_num;
 }
 
 void execute_cmd(int cmd_cnt){
@@ -278,7 +302,7 @@ void fork_exec(int i){
 
     if(pid == 0){
         //Child
-        printf("Kid running\n");
+        //printf("Kid running\n");
         if(cmd[i].input != 0){
             close(0);
             dup(cmd[i].input);
@@ -289,14 +313,16 @@ void fork_exec(int i){
             dup(cmd[i].output);
         }
 
-        signal(SIGQUIT, SIG_DFL);
-        signal(SIGINT,SIG_DFL);
+        //signal(SIGQUIT, SIG_DFL);
+        //signal(SIGINT,SIG_DFL);
         execvp(cmd[i].args[0], cmd[i].args);
 
         exit(EXIT_FAILURE);
     }else{
-        printf("DAD running\n");
-        usleep(800);
+        //printf("DAD running\n");
+        //usleep(800);
+        int status = 0;
+        wait(&status);
     }
 }
 
@@ -332,6 +358,11 @@ void CD(void){
 
 void EXIT(void){
     exit(EXIT_SUCCESS);
+}
+
+void PWD(void){
+    char pos[NAME_SIZE];
+    puts(getcwd(pos, NAME_SIZE));
 }
 
 int main(void){
