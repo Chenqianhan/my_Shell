@@ -41,6 +41,7 @@ void handler(int sig){
     return;
 }
 
+//Reset all memory to start a new shell command
 void init(void){
     memset(cmd, 0, sizeof(cmd));
     memset(commands, 0, sizeof(commands));
@@ -66,20 +67,25 @@ void init(void){
 
 void shell(void){
     //int status = 1;
+    //Each loop is an input for command
     while(1){
         init();
         
         //printf("Reading cmd\n");
+        //Restore input into commands[]
         if(read_cmd() == -1){
             break;
         }
 
         //printf("Parsing cmd\n");
         //number of cmd before '\n' or ';'.
+        //Parse commands from commands[] into cmd[]
         int cmd_cnt = parse_cmd();
         //printf("Execute_cmd\n");
+        //Execute commands in cmd[]
         execute_cmd(cmd_cnt);
         
+        //If there is ";", has_next would be 1 to do parse and execute again.
         while(has_next){
             //memset(cmd, 0, sizeof(cmd));
             memset(output_file, 0, sizeof(output_file));
@@ -163,6 +169,8 @@ void get_cmd(int i){
             case '>':
             case '|':
             case ';':
+                    if(isWord == 0) cmd[i].args[arg_idx] = NULL;
+                    return;
             case '\n':
                     if(isWord == 0) cmd[i].args[arg_idx] = NULL;
                     return;
@@ -173,7 +181,7 @@ void get_cmd(int i){
 
 
 }
-
+//Value memory space 'name' by cmd_ptr's next valid string.
 void get_string(char *name){
     while(*cmd_ptr == ' ' || *cmd_ptr == '\t'){
         cmd_ptr++;
