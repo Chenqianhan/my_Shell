@@ -75,6 +75,7 @@ void shell(void){
         }
 
         //printf("Parsing cmd\n");
+        //number of cmd before '\n' or ';'.
         int cmd_cnt = parse_cmd();
         //printf("Execute_cmd\n");
         execute_cmd(cmd_cnt);
@@ -219,11 +220,20 @@ int parse_cmd(void){
     }
 
     int cmd_num = 1;
+    for(int i=1;i<PIPE_SIZE;i++){
+        if(check("|")){
+            get_cmd(i);
+            cmd_num++;
+        }else{
+            break;
+        }
+    }
+           /*
     if(check("|")){
         get_cmd(1);
         cmd_num++;
     }
-    
+    */
     if(check("\n")){
         has_next = 0;
         return cmd_num;

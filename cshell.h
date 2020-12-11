@@ -2,10 +2,10 @@
 #define _CSHELL_H_
 
 #define LINE_SIZE 128 // Maximum length of input
-#define ARG_SIZE 20 // Maximum number of arguments in a single command
-#define PIPE_SIZE 2 // Maximum number of command in pipe
-#define NAME_SIZE 100 // Maximum length of IO filename in redirection.
-#define OPEN_MAX 1024
+#define ARG_SIZE 128 // Maximum number of arguments in a single command
+#define PIPE_SIZE 128 // Maximum number of command in pipe
+#define NAME_SIZE 128 // Maximum length of IO filename in redirection.
+#define OPEN_MAX 128
 
 #define ERR_EXIT(m) \
     do \
