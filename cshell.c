@@ -207,7 +207,15 @@ int read_cmd(void){
 
     return 0;
 }
-
+/**
+ * 1. check whether we can use inner function (like cd ,pwd) by running is_inner()
+ * 2. then get the first command using get_cmd(0)
+ * 3. check whether we have redirect and deal with it : we need to differentiate between > and >>, it decide whether we append it or replace it
+ *    This is taken care of by is_append variable.
+ * 4. pipe is taken care of by a for loop, since we allows for multiple pipes.
+ * 5. check whether we have ;
+ * 6 check whether we finish parsing
+ */
 int parse_cmd(void){
     if(check("\n")){
         return 0;
@@ -247,7 +255,7 @@ int parse_cmd(void){
         return cmd_num;
     }
     //ls; ls
-    if(check(";")){
+    else if(check(";")){
         has_next = 1;
         return cmd_num;
     }else{
@@ -311,7 +319,10 @@ void execute_cmd(int cmd_cnt){
     */
     return;
 }
-
+/**
+ * This function is needed for redirection feature
+ *
+ */
 void fork_exec(int i){
     pid_t pid = fork();
     if(pid == -1){
@@ -363,7 +374,7 @@ void run_inner(int idx){
     
     return;
 }
-
+// cd inner function
 void CD(void){
     get_cmd(0);
     int fd;
@@ -373,11 +384,11 @@ void CD(void){
     
    //chdir(cmd[0].args[0]);
 }
-
+//exit command
 void EXIT(void){
     exit(EXIT_SUCCESS);
 }
-
+//pwd command
 void PWD(void){
     char pos[NAME_SIZE];
     puts(getcwd(pos, NAME_SIZE));
@@ -386,9 +397,6 @@ void PWD(void){
 int main(void){
     signal(SIGINT, handler);
     signal(SIGQUIT, SIG_IGN);
-    //head = (JOB*)malloc(sizeof(JOB));
-    //head->next = NULL;
-
     shell();
 
     return 0;

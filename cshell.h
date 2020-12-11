@@ -17,18 +17,17 @@
 //ls -l, cmd[0].arg[0] = ls, cmd[0].arg[1] = -l;
 //cd, cmd[0].arg[0] = cd, cmd[0].arg[1] = null
 //ls -l;cd\n
+/**
+ * Since we allows redirection. We need a structure called cmd to deal with it. Each cmd can have many arguments
+  like -l, and it will have an input and output. More specifically, when we want to type 'ls -l > test'. The output
+  of 'ls -l' will be the input of 'test'
+ */
 typedef struct cmd{
     char *args[ARG_SIZE];
     int input;
     int output;
 }CMD;
-/*
-typedef struct job{
-    pid_t pid;
-    char *back[30];
-    struct job *next;
-}JOB;
-*/
+
 typedef void (*INNER_FUNC)(void);
 
 typedef struct inner_cmd{
